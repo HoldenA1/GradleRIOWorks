@@ -2,15 +2,16 @@ package frc.team972.drive;
 
 import frc.team972.util.*;
 import frc.team972.util.Motor.MotorType;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class DriveTrain {
 	Motor[] motors, leftSide, rightSide;
+	MotorType motorType;
+	int motorCount;
 	
 	public DriveTrain(XMLReader reader) {
 		String motorIDs = reader.parseXML(RobotSettings.DRIVE_MOTOR_IDS);
-		MotorType motorType = MotorType.getMotorType(reader.parseXML(RobotSettings.DRIVE_MOTOR_TYPE));
-		int motorCount = Integer.parseInt(reader.parseXML(RobotSettings.DRIVE_MOTOR_COUNT));
+		motorType = MotorType.getMotorType(reader.parseXML(RobotSettings.DRIVE_MOTOR_TYPE));
+		motorCount = Integer.parseInt(reader.parseXML(RobotSettings.DRIVE_MOTOR_COUNT));
 		
 		motors = new Motor[motorCount];
 		rightSide = new Motor[motorCount/2];
@@ -36,11 +37,15 @@ public class DriveTrain {
 	 * Only use if drive motor type is TALON
 	 */
 	public void logOutputCurrent() {
-		double currentSum = 0;
-		for (int i = 0; i < motors.length; i++) {
-			currentSum += motors[i].getOutputCurrent();
+		if (motorType == MotorType.TALON) {
+			double currentSum = 0;
+			for (Motor m: motors) {
+				currentSum += m.getOutputCurrent();
+			}
+			System.out.println("Avg drivetrain current draw: " + currentSum / motorCount);
+		} else {
+			System.out.println("[Log output current failed] This method only works with a talon_srx drivetrain");
 		}
-		SmartDashboard.putNumber("avg drivetrain current draw", currentSum/motors.length);
 	}
 	
 	public void driveSides(double leftSideSpeed, double rightSideSpeed) {
@@ -49,6 +54,12 @@ public class DriveTrain {
 		}
 		for (Motor r: rightSide) {
 			r.set(-rightSideSpeed);
+		}
+	}
+	
+	public void stop() {
+		for (Motor m: motors) {
+			m.set(0);
 		}
 	}
 
