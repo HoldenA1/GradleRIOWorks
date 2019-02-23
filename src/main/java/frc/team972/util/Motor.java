@@ -1,6 +1,7 @@
 package frc.team972.util;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import edu.wpi.first.wpilibj.*;
 
@@ -23,7 +24,7 @@ public class Motor {
 			victor = new Victor(ID);
 			break;
 		default:
-			System.out.println("ERROR! INVALID MOTOR TYPE!");
+			Logger.logError("Invalid Motor Type");
 			break;
 		}
 		this.type = type;
@@ -53,6 +54,36 @@ public class Motor {
 			return -1;
 	}
 	
+	/**
+	 * This method only works on talons
+	 */
+	public void setFeedbackSensor() {
+		if (type == MotorType.TALON)
+			talon.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, 100);
+	}
+	
+	/**
+	 * This method only works on talons
+	 */
+	public double getIntegratedEncoderPos() {
+		if (type == MotorType.TALON)
+			return talon.getSensorCollection().getQuadraturePosition();
+		else {
+			Logger.logError("getIntegratedEncoderPos only works with talons");
+			return -1;
+		}
+	}
+	
+	/**
+	 * This method only works on talons
+	 */
+	public void resetIntegratedEncoder() {
+		if (type == MotorType.TALON)
+			talon.getSensorCollection().setQuadraturePosition(0, 100);
+		else
+			Logger.logError("getIntegratedEncoderPos only works with talons");
+	}
+	
 	public enum MotorType {
 		TALON, SPARK, VICTOR;
 		
@@ -65,6 +96,7 @@ public class Motor {
 			case "VICTOR":
 				return MotorType.VICTOR;
 			default:
+				Logger.logError("Invalid motor type");
 				return null;
 			}
 		}

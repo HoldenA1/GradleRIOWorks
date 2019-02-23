@@ -3,6 +3,8 @@ package frc.team972.stateMachine;
 import java.util.ArrayList;
 
 import frc.team972.drive.DriveTrain;
+import frc.team972.sensors.Sensors;
+import frc.team972.util.Logger;
 
 public class RobotStateMachine {
 	
@@ -17,10 +19,10 @@ public class RobotStateMachine {
 		actionStartTime = System.currentTimeMillis();
 	}
 	
-	public void update(DriveTrain drive) {
+	public void update(DriveTrain drive, Sensors sensors) {
 		// Checks if there are any actions to be completed
 		if (actions.size() == 0) {
-			System.out.println("[Done with actions]");
+			Logger.log("Done with tasks");
 			sleep(100);
 			return;
 		}
@@ -42,8 +44,7 @@ public class RobotStateMachine {
 			break;
 		case DO_NOTHING:
 			sleep((long) currentAction.getValue());
-			actions.remove(0);
-			actionStartTime = System.currentTimeMillis();
+			completeAction(drive);
 			break;
 		default:
 			break;
@@ -56,10 +57,14 @@ public class RobotStateMachine {
 		if (now + currentAction.getValue() > actionStartTime)
 			drive.driveSides(leftSpeed, rightSpeed);
 		else {
-			drive.stop();
-			actions.remove(0);
-			actionStartTime = now;
+			completeAction(drive);
 		}
+	}
+	
+	private void completeAction(DriveTrain drive) {
+		drive.stop();
+		actions.remove(0);
+		actionStartTime = System.currentTimeMillis();
 	}
 	
 	private void sleep(long timeInMillis) {

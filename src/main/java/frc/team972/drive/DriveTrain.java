@@ -1,7 +1,10 @@
 package frc.team972.drive;
 
-import frc.team972.util.*;
+import frc.team972.util.Logger;
+import frc.team972.util.Motor;
 import frc.team972.util.Motor.MotorType;
+import frc.team972.util.RobotSettings;
+import frc.team972.util.XMLReader;
 
 public class DriveTrain {
 	Motor[] motors, leftSide, rightSide;
@@ -9,28 +12,29 @@ public class DriveTrain {
 	int motorCount;
 	
 	public DriveTrain(XMLReader reader) {
-		String motorIDs = reader.parseXML(RobotSettings.DRIVE_MOTOR_IDS);
-		motorType = MotorType.getMotorType(reader.parseXML(RobotSettings.DRIVE_MOTOR_TYPE));
-		motorCount = Integer.parseInt(reader.parseXML(RobotSettings.DRIVE_MOTOR_COUNT));
+		try {
+			String motorIDs = reader.parseXML(RobotSettings.DRIVE_MOTOR_IDS);
+			motorType = MotorType.getMotorType(reader.parseXML(RobotSettings.DRIVE_MOTOR_TYPE));
+			motorCount = Integer.parseInt(reader.parseXML(RobotSettings.DRIVE_MOTOR_COUNT));
+			
+			motors = new Motor[motorCount];
+			rightSide = new Motor[motorCount/2];
+			leftSide = new Motor[motorCount/2];
+			
+			// Initializes the array of motors
+			for (int i = 0; i < motorCount; i++) {
+				int motorID = Integer.parseInt(motorIDs.substring(i*2, i*2+1));			
+				motors[i] = new Motor(motorType, motorID);
+			}
 		
-		motors = new Motor[motorCount];
-		rightSide = new Motor[motorCount/2];
-		leftSide = new Motor[motorCount/2];
-		
-		// Initializes the array of motors
-		for (int i = 0; i < motorCount; i++) {
-			int motorID = Integer.parseInt(motorIDs.substring(i*2, i*2+1));			
-			motors[i] = new Motor(motorType, motorID);
+			// Sets up the left and right sides
+			for (int i = 0; i < motorCount/2; i++) {
+				leftSide[i] = motors[i];
+				rightSide[i] = motors[i+motorCount/2];
+			}
+		} catch (Exception e) {
+			Logger.logError("Something went wrong with the drive train config. Check to see if the config file on the roborio is correct.");
 		}
-	
-		// Sets up the left and right sides
-		for (int i = 0; i < motorCount/2; i++) {
-			leftSide[i] = motors[i];
-		}
-		for (int i = 0; i < motorCount/2; i++) {
-			rightSide[i] = motors[i+motorCount/2];
-		}
-		
 	}
 	
 	/**
@@ -39,10 +43,9 @@ public class DriveTrain {
 	public void logOutputCurrent() {
 		if (motorType == MotorType.TALON) {
 			double currentSum = 0;
-			for (Motor m: motors) {
+			for (Motor m: motors)
 				currentSum += m.getOutputCurrent();
-			}
-			System.out.println("Avg drivetrain current draw: " + currentSum / motorCount);
+			Logger.log("Avg drivetrain current draw: " + currentSum / motorCount);
 		} else {
 			System.out.println("[Log output current failed] This method only works with a talon_srx drivetrain");
 		}
@@ -61,6 +64,22 @@ public class DriveTrain {
 		for (Motor m: motors) {
 			m.set(0);
 		}
+	}
+	
+	public MotorType getMotorType() {
+		return motorType;
+	}
+	
+	public Motor[] getDriveMotors() {
+		return motors;
+	}
+	
+	public Motor[] getLeftDriveMotors() {
+		return leftSide;
+	}
+	
+	public Motor[] getRightDriveMotors() {
+		return rightSide;
 	}
 
 }
