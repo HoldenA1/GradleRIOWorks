@@ -1,5 +1,3 @@
-# Working gradle project
-___
-### How To:
-1. download
-2. gradle tasks
+### TODO:
+1. Add sensor-based commands
+2. Integrate with blockly
