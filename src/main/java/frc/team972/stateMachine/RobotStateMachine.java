@@ -1,9 +1,7 @@
 package frc.team972.stateMachine;
 
 import java.util.ArrayList;
-
 import frc.team972.drive.DriveTrain;
-import frc.team972.sensors.Sensors;
 import frc.team972.util.Logger;
 
 public class RobotStateMachine {
@@ -19,7 +17,7 @@ public class RobotStateMachine {
 		actionStartTime = System.currentTimeMillis();
 	}
 	
-	public void update(DriveTrain drive, Sensors sensors) {
+	public void update(DriveTrain drive) {
 		// Checks if there are any actions to be completed
 		if (actions.size() == 0) {
 			Logger.log("Done with tasks");
@@ -54,7 +52,7 @@ public class RobotStateMachine {
 	
 	private void driveTime(DriveTrain drive, double leftSpeed, double rightSpeed) {
 		long now = System.currentTimeMillis();
-		if (now + currentAction.getValue() > actionStartTime)
+		if (actionStartTime + currentAction.getValue() > now)
 			drive.driveSides(leftSpeed, rightSpeed);
 		else {
 			completeAction(drive);

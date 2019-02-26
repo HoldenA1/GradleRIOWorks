@@ -5,7 +5,7 @@ public class RobotState {
 	private State state;
 	private double value;
 	
-	enum State {
+	public enum State {
 		DO_NOTHING,
 		DRIVE_FORWARDS_TIME,
 		DRIVE_BACKWARDS_TIME,
@@ -13,6 +13,9 @@ public class RobotState {
 		TURN_LEFT_TIME;
 	}
 	
+	/**
+	 * @param all times are in milliseconds
+	 */
 	public RobotState(State state, double value) {
 		this.state = state;
 		this.value = value;
